@@ -6,10 +6,10 @@ import "dotenv/config";
 import matchRouter from "./routes/MatchRouter.js";
 
 const app = express();
-const credentials = JSON.parse(fs.readFileSync("./credentials.json"));
-admin.initializeApp({
-  credential: admin.credential.cert(credentials),
-});
+// const credentials = JSON.parse(fs.readFileSync("./credentials.json"));
+// admin.initializeApp({
+//   credential: admin.credential.cert(credentials),
+// });
 
 app.use("/api", matchRouter);
 
