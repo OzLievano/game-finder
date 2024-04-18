@@ -1,24 +1,34 @@
 import express from "express";
 import fs from "fs";
+import path from "path";
 import admin from "firebase-admin";
-import { MongoClient } from "mongodb";
+import cors from "cors";
 import "dotenv/config";
 
 import { db, connectToDB } from "./db.js";
-
 import matchRouter from "./routes/MatchRouter.js";
+import { fileURLToPath } from "url";
 
-const app = express();
-app.use(express.json());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // Load credentials from file
 const credentials = JSON.parse(fs.readFileSync("./hidden.json"));
 admin.initializeApp({
   credential: admin.credential.cert(credentials),
 });
 
+const app = express();
+app.use(express.json());
+app.use(cors());
+app.use(express.static(path.join(__dirname, "../build")));
+
+app.get(/^(?!\/api).+/, (req, res) => {
+  res.sendFile(path.join(__dirname, "../build/index.html"));
+});
+
 app.use("/api", matchRouter);
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
 connectToDB(() => {
   console.log("Successfully connected to Database");
