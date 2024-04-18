@@ -2,11 +2,10 @@ import express from "express";
 import { db } from "../db.js";
 
 const matchRouter = express.Router();
+matchRouter.use(express.json());
 
-// Route to get a list of matches
 matchRouter.get("/matchList", async (req, res) => {
   try {
-    // Get the database instance from the MongoClient
     const matches = await db.collection("matches").find({}).toArray();
     res.json(matches);
   } catch (error) {
@@ -15,14 +14,32 @@ matchRouter.get("/matchList", async (req, res) => {
   }
 });
 
-// Route to create a new match
-matchRouter.post("/match", (req, res) => {
-  res.send("This is an API to create a new match");
+matchRouter.post("/match", async (req, res) => {
+  const { createdBy, timeZone, matchType, format, language, status } = req.body;
+
+  const newMatch = {
+    createdBy: createdBy,
+    timezone: timeZone,
+    matchType: matchType,
+    format: format,
+    language: language,
+    gameStatus: status,
+  };
+
+  try {
+    const matches = await db.collection("matches").insertOne(newMatch);
+
+    res.json(newMatch);
+  } catch (error) {
+    console.error("Error creating a new match:", error);
+    res.status(500).send("An error occurred while creating a new match");
+  }
 });
 
-// Route to update an existing match
 matchRouter.put("/match/:id", (req, res) => {
-  res.send("This is an API to update the created match");
+  res.send(
+    "This is an API to update the created match, mainly we will want to update the status "
+  );
 });
 
 export default matchRouter;
