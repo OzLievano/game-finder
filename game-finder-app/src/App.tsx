@@ -1,24 +1,69 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import logo from "./logo.svg";
+import axios from "axios";
+import "./App.css";
+import { MuiButton, MuiTable, MuiTypography } from "@ozlievano/fabric";
+
+type Match = {
+  createdBy: string;
+  timezone: string;
+  matchType: string;
+  format: string;
+  language: string;
+  gameStatus: string;
+};
+
+type Matches = Match[];
 
 function App() {
+  const [matches, setMatches] = useState<Matches | []>([]);
+
+  useEffect(() => {
+    const loadMatchList = async () => {
+      try {
+        const fetchMatches = await fetch("api/matchList");
+        console.log(fetchMatches);
+        const matchData = await fetchMatches.json(); // Parse response as JSON
+        console.log("match", matchData);
+        setMatches(matchData);
+      } catch (error) {
+        console.error("Error fetching matches:", error);
+        // Handle errors appropriately
+      }
+    };
+    loadMatchList();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <MuiTypography variant="h2">AoS Match Finder</MuiTypography>
+      <MuiButton variant="contained">Create a New Match</MuiButton>
+      <MuiTable>
+        <tr>
+          <th> Created By </th>
+          <th> Time Zone </th>
+          <th> Match Type </th>
+          <th> Format </th>
+          <th> Language </th>
+          <th> Status </th>
+        </tr>
+        {matches ? (
+          matches.map((match) => {
+            return (
+              <tr>
+                <td>{match.createdBy}</td>
+                <td>{match.timezone}</td>
+                <td>{match.matchType}</td>
+                <td>{match.format}</td>
+                <td>{match.language}</td>
+                <td>{match.gameStatus}</td>
+              </tr>
+            );
+          })
+        ) : (
+          <></>
+        )}
+      </MuiTable>
     </div>
   );
 }
