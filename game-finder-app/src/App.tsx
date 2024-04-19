@@ -3,6 +3,7 @@ import logo from "./logo.svg";
 import axios from "axios";
 import "./App.css";
 import { MuiButton, MuiTable, MuiTypography } from "@ozlievano/fabric";
+import { NavigationBar } from "./components/NavigationBar";
 
 type Match = {
   createdBy: string;
@@ -36,7 +37,7 @@ function App() {
 
   return (
     <div className="App">
-      <MuiTypography variant="h2">AoS Match Finder</MuiTypography>
+      <NavigationBar />
       <MuiButton variant="contained">Create a New Match</MuiButton>
       <MuiTable>
         <tr>
