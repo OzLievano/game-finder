@@ -3,17 +3,22 @@ import { MuiAppBar, MuiBox, MuiButton, MuiTypography } from "@ozlievano/fabric";
 export const NavigationBar = () => {
   const navigate = useNavigate();
 
-  const handleRedirectToLogin = () => {
-    navigate("/login");
+  const handleRedirect = (url: string) => {
+    navigate(url);
   };
 
   return (
     <MuiAppBar>
       <MuiBox sx={{ display: "flex", justifyContent: "space-between" }}>
-        <MuiTypography variant="h6" color="inherit" component="div">
+        <MuiTypography
+          variant="h6"
+          color="inherit"
+          component="div"
+          onClick={() => handleRedirect("/")}
+        >
           AoS Match Finder
         </MuiTypography>
-        <MuiButton color="inherit" onClick={handleRedirectToLogin}>
+        <MuiButton color="inherit" onClick={() => handleRedirect("/login")}>
           Login
         </MuiButton>
       </MuiBox>
