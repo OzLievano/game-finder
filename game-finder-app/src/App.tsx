@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-import { MuiButton, MuiTable, MuiTypography } from "@ozlievano/fabric";
+import {
+  MuiBottomNavigation,
+  MuiButton,
+  MuiTable,
+  MuiTypography,
+} from "@ozlievano/fabric";
 import { NavigationBar } from "./components/NavigationBar";
+import { LoginPage } from "./components/LoginPage";
 
 type Match = {
   createdBy: string;
@@ -36,39 +41,45 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <NavigationBar />
-      <br />
-      <br />
-      <br />
-      <MuiButton variant="contained">Create a New Match</MuiButton>
-      <MuiTable>
-        <tr>
-          <th> Created By </th>
-          <th> Time Zone </th>
-          <th> Match Type </th>
-          <th> Format </th>
-          <th> Language </th>
-          <th> Status </th>
-        </tr>
-        {matches ? (
-          matches.map((match) => {
-            return (
-              <tr>
-                <td>{match.createdBy}</td>
-                <td>{match.timezone}</td>
-                <td>{match.matchType}</td>
-                <td>{match.format}</td>
-                <td>{match.language}</td>
-                <td>{match.gameStatus}</td>
-              </tr>
-            );
-          })
-        ) : (
-          <></>
-        )}
-      </MuiTable>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <NavigationBar />
+        //TODO: add actual style
+        <br />
+        <br />
+        <br />
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+        <MuiButton variant="contained">Create a New Match</MuiButton>
+        <MuiTable>
+          <tr>
+            <th> Created By </th>
+            <th> Time Zone </th>
+            <th> Match Type </th>
+            <th> Format </th>
+            <th> Language </th>
+            <th> Status </th>
+          </tr>
+          {matches ? (
+            matches.map((match) => {
+              return (
+                <tr>
+                  <td>{match.createdBy}</td>
+                  <td>{match.timezone}</td>
+                  <td>{match.matchType}</td>
+                  <td>{match.format}</td>
+                  <td>{match.language}</td>
+                  <td>{match.gameStatus}</td>
+                </tr>
+              );
+            })
+          ) : (
+            <></>
+          )}
+        </MuiTable>
+      </div>
+    </BrowserRouter>
   );
 }
 
