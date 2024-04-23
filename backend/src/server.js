@@ -26,6 +26,22 @@ app.get(/^(?!\/api).+/, (req, res) => {
   res.sendFile(path.join(__dirname, "../build/index.html"));
 });
 
+app.use(async (req, res, next) => {
+  //next needs to be called when we are done processing middleware
+  const { authToken } = req.headers;
+  if (authToken) {
+    try {
+      req.user = await admin.auth().verifyIdToken(authToken);
+    } catch (error) {
+      return res.sendStatus(400);
+    }
+  }
+
+  req.user = req.user || {};
+
+  next();
+});
+
 app.use("/api", matchRouter);
 
 const PORT = process.env.PORT || 8000;
