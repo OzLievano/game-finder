@@ -38,6 +38,9 @@ function App() {
   return (
     <div className="App">
       <NavigationBar />
+      <br />
+      <br />
+      <br />
       <MuiButton variant="contained">Create a New Match</MuiButton>
       <MuiTable>
         <tr>
