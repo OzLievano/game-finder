@@ -1,17 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { MuiAppBar, MuiBox, MuiButton, MuiTypography } from "@ozlievano/fabric";
+import { useAuth } from "../hooks/useAuth";
 export const NavigationBar = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleRedirect = (url: string) => {
     navigate(url);
   };
   /*
-   TODO: Need to Hide create Match button unless user is authenticated
    TODO: Create Match needs redirect to a form 
-   TODO: When user logs in , App Bar changes and has user icon to visit profile 
    TODO: Notification System to notify user a match is confirmed to be played 
    TODO: allow user to update match to change the status of the game Open, In Progress, Closed 
+   TODO: Table will need Pagination
   */
   return (
     <MuiAppBar>
@@ -24,9 +25,15 @@ export const NavigationBar = () => {
         >
           AoS Match Finder
         </MuiTypography>
-        <MuiButton color="inherit" onClick={() => handleRedirect("/login")}>
-          Login
-        </MuiButton>
+
+        {user ? (
+          // TODO: create User Profile Icon Component and Page
+          <p>User Profile Icon Here</p>
+        ) : (
+          <MuiButton color="inherit" onClick={() => handleRedirect("/login")}>
+            Login
+          </MuiButton>
+        )}
       </MuiBox>
     </MuiAppBar>
   );
