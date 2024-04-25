@@ -12,7 +12,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Load credentials from file
-const credentials = JSON.parse(fs.readFileSync("./hidden.json"));
+const credentials = JSON.parse(fs.readFileSync("../hidden.json"));
 admin.initializeApp({
   credential: admin.credential.cert(credentials),
 });
