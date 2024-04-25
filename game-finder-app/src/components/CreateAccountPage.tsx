@@ -1,17 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import "firebase/firestore";
-export const LoginPage = () => {
+import axios from "axios";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+
+export const CreateAccountPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-
   const navigate = useNavigate();
 
-  const logIn = async () => {
+  const createAccount = async () => {
     try {
-      await signInWithEmailAndPassword(getAuth(), email, password);
+      if (password !== confirmPassword) {
+        setError("Password and confirm password do not match");
+        return;
+      }
+      await createUserWithEmailAndPassword(getAuth(), email, password);
       navigate("/");
     } catch (error: any) {
       setError(error.message);
@@ -20,7 +25,7 @@ export const LoginPage = () => {
 
   return (
     <>
-      <h1>Log In</h1>
+      <h1>Create Account</h1>
       {error && <p className="error">{error}</p>}
       <label>
         <input
@@ -38,8 +43,16 @@ export const LoginPage = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
-      <button onClick={logIn}>Log In</button>
-      <Link to="/create-account">Don't have an account? Create one here.</Link>
+      <label>
+        <input
+          type="password"
+          value={confirmPassword}
+          placeholder="Re-enter your password"
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+      </label>
+      <button onClick={createAccount}>Create Account </button>
+      <Link to="/login">Already have an account? Log in here.</Link>
     </>
   );
 };

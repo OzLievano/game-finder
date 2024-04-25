@@ -7,7 +7,6 @@ export const NavigationBar = () => {
     navigate(url);
   };
   /*
-   TODO: Need to create "Create Account Page" 
    TODO: Need to Hide create Match button unless user is authenticated
    TODO: Create Match needs redirect to a form 
    TODO: When user logs in , App Bar changes and has user icon to visit profile 

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Matches } from "./matches.api";
+import { useAuth } from "../hooks/useAuth";
 import { MuiButton, MuiTable } from "@ozlievano/fabric";
 
 export const MatchTable = () => {
   const [matches, setMatches] = useState<Matches | []>([]);
+  const { user } = useAuth();
   useEffect(() => {
     const loadMatchList = async () => {
       try {
@@ -22,7 +24,11 @@ export const MatchTable = () => {
 
   return (
     <div>
-      <MuiButton variant="contained">Create a New Match</MuiButton>
+      {user ? (
+        <MuiButton variant="contained">Create a New Match</MuiButton>
+      ) : (
+        <></>
+      )}
       <MuiTable>
         <tr>
           <th> Created By </th>
