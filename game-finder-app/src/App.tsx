@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { NavigationBar } from "./components/NavigationBar";
@@ -6,6 +5,8 @@ import { NotFoundPage } from "./NotFoundPage";
 import { CreateAccountPage } from "./components/CreateAccountPage";
 import { LoginPage } from "./components/LoginPage";
 import { MatchTable } from "./components/MatchTable";
+import { CreateNewMatch } from "./components/CreateNewMatch";
+import { ProfilePage } from "./components/ProfilePage";
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
           <Route path="/" element={<MatchTable />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
+          <Route path="/create-match" element={<CreateNewMatch />} />
+          <Route path="/user-profile" element={<ProfilePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

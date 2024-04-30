@@ -1,5 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { MuiAppBar, MuiBox, MuiButton, MuiTypography } from "@ozlievano/fabric";
+import {
+  MuiAppBar,
+  MuiAvatar,
+  MuiBox,
+  MuiButton,
+  MuiTypography,
+} from "@ozlievano/fabric";
 import { useAuth } from "../hooks/useAuth";
 export const NavigationBar = () => {
   const navigate = useNavigate();
@@ -28,7 +34,7 @@ export const NavigationBar = () => {
 
         {user ? (
           // TODO: create User Profile Icon Component and Page
-          <p>User Profile Icon Here</p>
+          <MuiAvatar onClick={() => handleRedirect("/user-profile")} />
         ) : (
           <MuiButton color="inherit" onClick={() => handleRedirect("/login")}>
             Login

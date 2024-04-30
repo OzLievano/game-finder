@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 
 export const CreateAccountPage = () => {
   const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,7 +21,14 @@ export const CreateAccountPage = () => {
         setError("Password and confirm password do not match");
         return;
       }
-      await createUserWithEmailAndPassword(getAuth(), email, password);
+      const userCredentials = await createUserWithEmailAndPassword(
+        getAuth(),
+        email,
+        password
+      );
+      await updateProfile(userCredentials.user, {
+        displayName: displayName,
+      });
       navigate("/");
     } catch (error: any) {
       setError(error.message);
@@ -33,6 +45,14 @@ export const CreateAccountPage = () => {
           value={email}
           placeholder="Your Email Address"
           onChange={(e) => setEmail(e.target.value)}
+        />
+      </label>
+      <label>
+        <input
+          type="displayName"
+          value={displayName}
+          placeholder="Display Name"
+          onChange={(e) => setDisplayName(e.target.value)}
         />
       </label>
       <label>

@@ -2,17 +2,19 @@ import { useState, useEffect } from "react";
 import { Matches } from "./matches.api";
 import { useAuth } from "../hooks/useAuth";
 import { MuiButton, MuiTable } from "@ozlievano/fabric";
+import { useNavigate } from "react-router-dom";
 
 export const MatchTable = () => {
   const [matches, setMatches] = useState<Matches | []>([]);
   const { user } = useAuth();
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const loadMatchList = async () => {
       try {
         const fetchMatches = await fetch("api/matchList");
-        console.log(fetchMatches);
         const matchData = await fetchMatches.json(); // Parse response as JSON
-        console.log("match", matchData);
         setMatches(matchData);
       } catch (error) {
         console.error("Error fetching matches:", error);
@@ -22,10 +24,16 @@ export const MatchTable = () => {
     loadMatchList();
   }, []);
 
+  const handleCreateNewMatch = () => {
+    navigate("/create-match");
+  };
+
   return (
     <div>
       {user ? (
-        <MuiButton variant="contained">Create a New Match</MuiButton>
+        <MuiButton variant="contained" onClick={handleCreateNewMatch}>
+          Create a New Match
+        </MuiButton>
       ) : (
         <></>
       )}
