@@ -4,9 +4,26 @@ import { db } from "../db.js";
 const matchRouter = express.Router();
 matchRouter.use(express.json());
 
-matchRouter.get("/matchList", async (req, res) => {
+matchRouter.get("/openMatchList", async (req, res) => {
   try {
-    const matches = await db.collection("matches").find({}).toArray();
+    const matches = await db
+      .collection("matches")
+      .find({ status: "open" })
+      .toArray();
+    res.json(matches);
+  } catch (error) {
+    console.error("Error fetching matches:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+matchRouter.get("/matchList", async (req, res) => {
+  const { displayName } = req.user;
+  try {
+    const matches = await db
+      .collection("matches")
+      .find({ createdBy: displayName })
+      .toArray();
     res.json(matches);
   } catch (error) {
     console.error("Error fetching matches:", error);
