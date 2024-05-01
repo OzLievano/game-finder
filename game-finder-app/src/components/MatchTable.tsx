@@ -13,7 +13,7 @@ export const MatchTable = () => {
   useEffect(() => {
     const loadMatchList = async () => {
       try {
-        const fetchMatches = await fetch("api/matchList");
+        const fetchMatches = await fetch("api/openMatchList");
         const matchData = await fetchMatches.json(); // Parse response as JSON
         setMatches(matchData);
       } catch (error) {
@@ -56,6 +56,9 @@ export const MatchTable = () => {
                 <td>{match.format}</td>
                 <td>{match.language}</td>
                 <td>{match.gameStatus}</td>
+                <td>
+                  <MuiButton variant="contained">Schedule Match</MuiButton>
+                </td>
               </tr>
             );
           })
