@@ -24,6 +24,8 @@ export const MatchTable = () => {
     loadMatchList();
   }, []);
 
+  console.log(matches);
+
   const handleCreateNewMatch = () => {
     navigate("/create-match");
   };

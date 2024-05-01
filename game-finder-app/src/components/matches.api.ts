@@ -5,6 +5,7 @@ export type Match = {
   format: string;
   language: string;
   gameStatus: string;
+  opponent: string | null;
 };
 
 export type Matches = Match[];

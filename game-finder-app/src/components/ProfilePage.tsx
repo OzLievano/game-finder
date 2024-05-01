@@ -52,6 +52,7 @@ export const ProfilePage = () => {
           <th> Format </th>
           <th> Language </th>
           <th> Status </th>
+          <th> Opponent </th>
         </tr>
         {matches ? (
           matches.map((match) => {
@@ -62,6 +63,7 @@ export const ProfilePage = () => {
                 <td>{match.format}</td>
                 <td>{match.language}</td>
                 <td>{match.gameStatus}</td>
+                <td>{match.opponent}</td>
               </tr>
             );
           })
