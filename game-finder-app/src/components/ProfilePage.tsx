@@ -7,6 +7,8 @@ import { Matches } from "./matches.api";
 export const ProfilePage = () => {
   const { user } = useAuth();
   const [matches, setMatches] = useState<Matches | []>([]);
+  const [matchRequests, setMatchRequests] =
+    useState<{ [key: string]: any }[]>();
 
   useEffect(() => {
     const loadMatchList = async () => {
@@ -19,8 +21,24 @@ export const ProfilePage = () => {
         // Handle errors appropriately
       }
     };
+    const loadMatchRequests = async (matchIds) => {
+      try {
+        const requestsData: { [key: string]: any }[] = await Promise.all(
+          matchIds.map(async (id: any) => {
+            const response = await fetch(`api/match/request/${id}`);
+            return response.json();
+          })
+        );
+        setMatchRequests(requestsData);
+      } catch (error) {
+        console.error("Error fetching matches:", error);
+        // Handle errors appropriately
+      }
+    };
     loadMatchList();
-  }, []);
+    const matchIds = matches.map((match) => match._id); // Assuming _id is the match ID
+    loadMatchRequests(matchIds);
+  }, [matches]);
 
   const handleSignOut = () => {
     // Sign out
@@ -44,6 +62,11 @@ export const ProfilePage = () => {
       <MuiButton variant="contained" onClick={handleSignOut}>
         Sign Out
       </MuiButton>
+      {matchRequests ? (
+        matchRequests.map((request) => {
+          <h1> request </h1>
+        })
+      )}
       <h3>Match History</h3>
       <MuiTable>
         <tr>
