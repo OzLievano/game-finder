@@ -1,4 +1,5 @@
 export type Match = {
+  _id: number;
   createdBy: string;
   timezone: string;
   matchType: string;

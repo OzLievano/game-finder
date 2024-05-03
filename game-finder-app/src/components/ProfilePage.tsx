@@ -21,11 +21,12 @@ export const ProfilePage = () => {
         // Handle errors appropriately
       }
     };
-    const loadMatchRequests = async (matchIds) => {
+    const loadMatchRequests = async (matchIds: any) => {
       try {
         const requestsData: { [key: string]: any }[] = await Promise.all(
           matchIds.map(async (id: any) => {
             const response = await fetch(`api/match/request/${id}`);
+            console.log("response", response);
             return response.json();
           })
         );
@@ -38,7 +39,9 @@ export const ProfilePage = () => {
     loadMatchList();
     const matchIds = matches.map((match) => match._id); // Assuming _id is the match ID
     loadMatchRequests(matchIds);
-  }, [matches]);
+  }, []);
+
+  console.log("matchRequests", matchRequests);
 
   const handleSignOut = () => {
     // Sign out
@@ -62,11 +65,15 @@ export const ProfilePage = () => {
       <MuiButton variant="contained" onClick={handleSignOut}>
         Sign Out
       </MuiButton>
-      {matchRequests ? (
-        matchRequests.map((request) => {
-          <h1> request </h1>
-        })
-      )}
+      <MuiCard>
+        {matchRequests ? (
+          matchRequests.map((request) => {
+            return <h1> request </h1>;
+          })
+        ) : (
+          <></>
+        )}
+      </MuiCard>
       <h3>Match History</h3>
       <MuiTable>
         <tr>

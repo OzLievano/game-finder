@@ -24,12 +24,12 @@ matchRouter.get("/matchList", async (req, res) => {
   try {
     const matches = await db
       .collection("matches")
-      .find({ createdBy: displayName })
+      .find({ createdBy: { $ne: null, $eq: displayName } })
       .toArray();
     res.json(matches);
   } catch (error) {
     console.error("Error fetching matches:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -58,24 +58,34 @@ matchRouter.post("/match", async (req, res) => {
 
 matchRouter.put("/match/:id", async (req, res) => {
   const { id } = req.params;
-  const { requestId } = req.body;
+  const { requestId, userId, gameStatus } = req.body;
 
   const match = await db.collection("matches").findOne({ _id: id });
   if (match) {
-    if (req.body.gameStatus === "accepted" && match.requests.length > 0) {
-      const request = match.requests.find((req) => req.requestId === requestId);
+    if (gameStatus === "accepted" && match.requests.length > 0) {
+      const request = match.requests.find(
+        (req) => req.requestId === requestId && req.user === userId
+      );
       if (request) {
         match.gameStatus = "accepted";
         match.opponent = request.user;
         match.requestId = request.requestId;
-        match.requests = []; // remove all requests after acceptance
+        match.requests = [];
         await match.save();
         res.json(match);
       } else {
-        res.sendStatus(400).send("Invalid request ID");
+        res.sendStatus(400).send("Invalid request ID or user");
       }
+    } else if (gameStatus === "pending" && match.createdBy !== userId) {
+      const newRequest = {
+        requestId: requestId,
+        user: userId,
+      };
+      match.requests.push(newRequest);
+      await match.save();
+      res.json(match);
     } else {
-      res.sendStatus(400).send("Invalid game status");
+      res.sendStatus(400).send("Invalid game status or user");
     }
   } else {
     res.sendStatus(404).send("Match not found");
