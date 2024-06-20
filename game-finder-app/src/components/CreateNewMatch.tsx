@@ -5,8 +5,8 @@ import { useAuth } from "../hooks/useAuth";
 
 type FormMatchData = {
   matchType: string;
-  matchFormat: string;
-  matchTime: Date | string;
+  format: string;
+  timeZone: Date | string;
   language: string;
   status: string;
   createdBy: string;
@@ -17,25 +17,35 @@ export const CreateNewMatch = () => {
   const { user } = useAuth();
   const [formState, setFormState] = useState<FormMatchData>({
     matchType: "",
-    matchFormat: "",
-    matchTime: "",
+    format: "",
+    timeZone: "",
     language: "",
     status: "open",
-    createdBy: user?.email,
+    createdBy: "",
   });
-  console.log("formState", formState);
-  console.log(user);
 
-  const handleCreateNewMatch = () => {
-    fetch("api/match", {
+  useEffect(() => {
+    // Update createdBy once user is populated
+    if (user) {
+      setFormState((prevState) => ({
+        ...prevState,
+        createdBy: user.displayName || "", // Set createdBy to user's displayName if available
+      }));
+    }
+  }, [user]);
+
+  const handleCreateNewMatch = async () => {
+    const idToken = await user.getIdToken();
+    await fetch("api/match", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
       },
       body: JSON.stringify({
         matchType: formState.matchType,
-        format: formState.matchFormat,
-        timezone: formState.matchTime,
+        format: formState.format,
+        timezone: formState.timeZone,
         language: formState.language,
         createdBy: user.displayName,
         gameStatus: formState.status,
@@ -43,8 +53,12 @@ export const CreateNewMatch = () => {
     })
       .then((response) => response.json())
       .catch((error) => console.error("Error:", error));
+    console.log(user.displayName);
+    console.log(formState.createdBy);
     navigate("/");
   };
+
+  console.log(formState);
 
   return (
     <MuiBox component="form" noValidate autoComplete="off">
@@ -52,16 +66,16 @@ export const CreateNewMatch = () => {
         <MuiTypography>Match Type</MuiTypography>
         <select name="match-type" id="match-type-select">
           <option value="">--Please choose an option--</option>
-          <option value="Matched Play">Competitive</option>
-          <option value="Casual">Casual</option>
+          <option value="Spearhead">Spearhead</option>
+          <option value="Pitched Battles">Pitched Battles</option>
         </select>
       </label>
       <label htmlFor="match-format">
         <MuiTypography>Match Format</MuiTypography>
         <select name="match-format" id="match-format-select">
           <option value="">--Please choose an option--</option>
-          <option value="Matched Play">Matched Play</option>
-          <option value="Casual">Narrative Play</option>
+          <option value="Ranked">Ranked</option>
+          <option value="Casual">Casual</option>
         </select>
       </label>
       <label htmlFor="match-time">
@@ -86,6 +100,3 @@ export const CreateNewMatch = () => {
     </MuiBox>
   );
 };
-function then(arg0: (response: any) => any) {
-  throw new Error("Function not implemented.");
-}
