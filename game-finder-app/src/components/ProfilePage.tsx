@@ -1,5 +1,5 @@
 import { MuiButton, MuiCard, MuiTable, MuiTypography } from "@ozlievano/fabric";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getAuth } from "firebase/auth";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -88,6 +88,22 @@ export const ProfilePage = () => {
       });
   };
 
+  const hasAnyRequests = useMemo(
+    () =>
+      matchRequests.some(
+        (match) => match.requests && match.requests.length > 0
+      ),
+    [matchRequests]
+  );
+
+  const allEmptyRequests = useMemo(
+    () =>
+      !matchRequests.some(
+        (match) => match.requests && match.requests.length > 0
+      ),
+    [matchRequests]
+  );
+
   return (
     <div>
       <MuiCard>
@@ -108,24 +124,24 @@ export const ProfilePage = () => {
             </tr>
           </thead>
           <tbody>
-            {matchRequests && matchRequests.length > 0 ? (
+            {matchRequests.length === 0 ? (
+              <tr>
+                <td colSpan={2}>No matches found</td>
+              </tr>
+            ) : hasAnyRequests ? (
               matchRequests.map((match) =>
-                match.requests && match.requests.length > 0 ? (
-                  match.requests.map((request: any) => (
-                    <tr key={request.requestId}>
-                      <td>{request.user}</td>
-                      <td>Approve / Reject</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr key={match._id}>
-                    <td colSpan={2}>No requests</td>
-                  </tr>
-                )
+                match.requests && match.requests.length > 0
+                  ? match.requests.map((request: any) => (
+                      <tr key={request.requestId}>
+                        <td>{request.user}</td>
+                        <td>Approve / Reject</td>
+                      </tr>
+                    ))
+                  : null
               )
             ) : (
               <tr>
-                <td colSpan={2}>No matches found</td>
+                <td colSpan={2}>No requests</td>
               </tr>
             )}
           </tbody>
