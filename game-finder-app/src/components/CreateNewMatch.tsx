@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MuiBox, MuiButton, MuiTypography } from "@ozlievano/fabric";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useNotification } from "./NotificationContext";
 
 type FormMatchData = {
   matchType: string;
@@ -15,6 +16,7 @@ type FormMatchData = {
 export const CreateNewMatch = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [formState, setFormState] = useState<FormMatchData>({
     matchType: "",
     format: "",
@@ -56,9 +58,13 @@ export const CreateNewMatch = () => {
     })
       .then((response: any) => {
         console.log(response);
+        showNotification("Match created successfully", "success");
         response.json();
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => {
+        showNotification(error.message, "error");
+        console.error("Error:", error);
+      });
     navigate("/");
   };
 

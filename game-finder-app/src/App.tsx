@@ -7,26 +7,29 @@ import { LoginPage } from "./components/LoginPage";
 import { MatchTable } from "./components/MatchTable";
 import { CreateNewMatch } from "./components/CreateNewMatch";
 import { ProfilePage } from "./components/ProfilePage";
+import { NotificationProvider } from "./components/NotificationContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="App">
-        <NavigationBar />
-        {/* //TODO:add actual style */}
-        <br />
-        <br />
-        <br />
-        <Routes>
-          <Route path="/" element={<MatchTable />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/create-account" element={<CreateAccountPage />} />
-          <Route path="/create-match" element={<CreateNewMatch />} />
-          <Route path="/user-profile" element={<ProfilePage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <NotificationProvider>
+      <BrowserRouter>
+        <div className="App">
+          <NavigationBar />
+          {/* //TODO:add actual style */}
+          <br />
+          <br />
+          <br />
+          <Routes>
+            <Route path="/" element={<MatchTable />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/create-account" element={<CreateAccountPage />} />
+            <Route path="/create-match" element={<CreateNewMatch />} />
+            <Route path="/user-profile" element={<ProfilePage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </NotificationProvider>
   );
 }
 
