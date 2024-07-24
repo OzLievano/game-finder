@@ -22,7 +22,9 @@ export const NavigationBar = () => {
   */
   return (
     <MuiAppBar>
-      <MuiBox sx={{ display: "flex", justifyContent: "space-between" }}>
+      <MuiBox
+        sx={{ display: "flex", justifyContent: "space-between", zIndex: 100 }}
+      >
         <MuiTypography
           variant="h6"
           color="inherit"

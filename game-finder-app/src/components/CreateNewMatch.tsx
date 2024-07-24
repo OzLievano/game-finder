@@ -6,9 +6,9 @@ import { useAuth } from "../hooks/useAuth";
 type FormMatchData = {
   matchType: string;
   format: string;
-  timeZone: Date | string;
+  timezone: number | string;
   language: string;
-  status: string;
+  gameStatus: string;
   createdBy: string;
 };
 
@@ -18,12 +18,11 @@ export const CreateNewMatch = () => {
   const [formState, setFormState] = useState<FormMatchData>({
     matchType: "",
     format: "",
-    timeZone: "",
+    timezone: "",
     language: "",
-    status: "open",
+    gameStatus: "open",
     createdBy: "",
   });
-
   useEffect(() => {
     // Update createdBy once user is populated
     if (user) {
@@ -34,7 +33,11 @@ export const CreateNewMatch = () => {
     }
   }, [user]);
 
-  const handleCreateNewMatch = async () => {
+  const handleFormValues = (e: any) => {
+    setFormState({ ...formState, [e.target.name]: e.target.value });
+  };
+
+  const createNewMatch = async () => {
     const idToken = await user.getIdToken();
     await fetch("api/match", {
       method: "POST",
@@ -45,26 +48,30 @@ export const CreateNewMatch = () => {
       body: JSON.stringify({
         matchType: formState.matchType,
         format: formState.format,
-        timezone: formState.timeZone,
+        timezone: formState.timezone,
         language: formState.language,
         createdBy: user.displayName,
-        gameStatus: formState.status,
+        gameStatus: formState.gameStatus,
       }),
     })
-      .then((response) => response.json())
+      .then((response: any) => {
+        console.log(response);
+        response.json();
+      })
       .catch((error) => console.error("Error:", error));
-    console.log(user.displayName);
-    console.log(formState.createdBy);
     navigate("/");
   };
-
-  console.log(formState);
 
   return (
     <MuiBox component="form" noValidate autoComplete="off">
       <label htmlFor="match-type">
         <MuiTypography>Match Type</MuiTypography>
-        <select name="match-type" id="match-type-select">
+        <select
+          name="matchType"
+          id="match-type-select"
+          value={formState.matchType}
+          onChange={handleFormValues}
+        >
           <option value="">--Please choose an option--</option>
           <option value="Spearhead">Spearhead</option>
           <option value="Pitched Battles">Pitched Battles</option>
@@ -72,7 +79,12 @@ export const CreateNewMatch = () => {
       </label>
       <label htmlFor="match-format">
         <MuiTypography>Match Format</MuiTypography>
-        <select name="match-format" id="match-format-select">
+        <select
+          name="format"
+          id="match-format-select"
+          value={formState.format}
+          onChange={handleFormValues}
+        >
           <option value="">--Please choose an option--</option>
           <option value="Ranked">Ranked</option>
           <option value="Casual">Casual</option>
@@ -83,18 +95,25 @@ export const CreateNewMatch = () => {
         <input
           type="datetime-local"
           id="match-time"
-          name="match-time"
-          value="2018-06-12T19:30"
+          name="timezone"
           min="2024-06-07T00:00"
           max="2024-12-14T00:00"
+          value={formState.timezone}
+          onChange={handleFormValues}
         />
       </label>
       <label>
         <MuiTypography>Enter your language preference</MuiTypography>
-        <input type="text" placeholder="Language Preference" />
+        <input
+          type="text"
+          placeholder="Language Preference"
+          name="language"
+          value={formState.language}
+          onChange={handleFormValues}
+        />
       </label>
       <p></p>
-      <MuiButton onClick={handleCreateNewMatch} variant="contained">
+      <MuiButton onClick={createNewMatch} variant="contained">
         <MuiTypography>Submit New Match</MuiTypography>
       </MuiButton>
     </MuiBox>

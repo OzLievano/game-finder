@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { Matches } from "./matches.api";
 import { useAuth } from "../hooks/useAuth";
 import { MuiButton, MuiTable } from "@ozlievano/fabric";
+import { Notification } from "./Notification";
 import { useNavigate } from "react-router-dom";
 
 export const MatchTable = () => {
   const [matches, setMatches] = useState<Matches | []>([]);
+  const [notification, setNotification] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -43,12 +45,50 @@ export const MatchTable = () => {
     }
   }, [user]); // Depend on user for triggering useEffect when user changes
 
+  const clearNotification = () => {
+    setNotification("");
+  };
+
+  const handleError = (errorMessage: string) => {
+    setNotification(errorMessage);
+  };
+
   const handleCreateNewMatch = () => {
     navigate("/create-match");
   };
 
+  const handleScheduleMatch = async (id: number) => {
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch(`api/match/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          gameStatus: "pending",
+          user: user.name,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        handleError(errorMessage);
+        throw new Error(`Failed to update match ${id}`);
+      }
+
+      // Optionally handle successful response here
+      // For example, update UI or trigger a refresh
+    } catch (error) {
+      console.error("Error scheduling match:", error);
+      // Handle error scenario, e.g., show error message to the user
+    }
+  };
+
   return (
     <div>
+      <Notification message={notification} onClose={clearNotification} />
       {user ? (
         <MuiButton variant="contained" onClick={handleCreateNewMatch}>
           Create a New Match
@@ -77,7 +117,14 @@ export const MatchTable = () => {
               <td>{match.language || "-"}</td>
               <td>{match.gameStatus || "-"}</td>
               <td>
-                <MuiButton variant="contained">Schedule Match</MuiButton>
+                <MuiButton
+                  variant="contained"
+                  onClick={() => {
+                    handleScheduleMatch(match._id);
+                  }}
+                >
+                  Schedule Match
+                </MuiButton>
               </td>
             </tr>
           ))}

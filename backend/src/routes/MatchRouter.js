@@ -2,21 +2,20 @@ import express from "express";
 import { ObjectId } from "mongodb";
 import { db } from "../db.js";
 import authenticate from "./authenticate.js";
+import { v4 as uuidv4 } from "uuid";
 
 const matchRouter = express.Router();
 matchRouter.use(express.json());
 matchRouter.use(authenticate);
 // Get a list of open matches, excluding those created by the current user
 matchRouter.get("/openMatchList", async (req, res) => {
-  const { displayName } = req.user;
-  console.log(`displayName: ${displayName}`);
+  const { name } = req.user;
 
+  console.log("name:", name);
   try {
-    const query = { gameStatus: "open", createdBy: { $ne: displayName } };
-    console.log(`Query: ${JSON.stringify(query)}`);
-
+    const query = { gameStatus: "open", createdBy: { $ne: name } };
     const matches = await db.collection("matches").find(query).toArray();
-    console.log(`Matches found: ${matches.length}`);
+    console.log(matches);
     res.json(matches);
   } catch (error) {
     console.error("Error fetching matches:", error);
@@ -26,11 +25,11 @@ matchRouter.get("/openMatchList", async (req, res) => {
 
 // Get a list of matches created by the current user
 matchRouter.get("/matchList", async (req, res) => {
-  const { displayName } = req.user;
+  const { name } = req.user;
   try {
     const matches = await db
       .collection("matches")
-      .find({ createdBy: displayName })
+      .find({ createdBy: name })
       .toArray();
     res.json(matches);
   } catch (error) {
@@ -41,15 +40,15 @@ matchRouter.get("/matchList", async (req, res) => {
 
 // Create a new match
 matchRouter.post("/match", async (req, res) => {
-  const { createdBy, timeZone, matchType, format, language, status } = req.body;
-  console.log(req.body);
+  const { createdBy, timezone, matchType, format, language, gameStatus } =
+    req.body;
   const newMatch = {
     createdBy,
-    timezone: timeZone,
+    timezone,
     matchType,
     format,
     language,
-    gameStatus: status,
+    gameStatus,
     requests: [],
   };
 
@@ -88,23 +87,41 @@ matchRouter.put("/match/:id", async (req, res) => {
         match.opponent = request.user;
         match.requestId = request.requestId;
         match.requests = [];
-        await db
-          .collection("matches")
-          .updateOne({ _id: new ObjectId(id) }, { $set: match });
+        await db.collection("matches").updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: {
+              gameStatus: match.gameStatus,
+              opponent: match.opponent,
+              requestId: match.requestId,
+              requests: match.requests,
+            },
+          }
+        );
         return res.json(match);
       } else {
         return res.status(400).send("Invalid request ID or user");
       }
     } else if (gameStatus === "pending" && match.createdBy !== userId) {
-      const newRequest = { requestId, user: userId };
-      match.requests.push(newRequest);
-      await db
-        .collection("matches")
-        .updateOne(
-          { _id: new ObjectId(id) },
-          { $set: { requests: match.requests } }
-        );
-      return res.json(match);
+      const hasUserAlreadyRequested = match.requests.some(
+        (request) => request.user === req.user.name
+      );
+      if (!hasUserAlreadyRequested) {
+        const newRequestId = uuidv4();
+        const newRequest = { requestId: newRequestId, user: req.user.name };
+        match.requests.push(newRequest);
+        await db
+          .collection("matches")
+          .updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { requests: match.requests } }
+          );
+        return res.json(match);
+      } else {
+        return res
+          .status(400)
+          .send("You already requested a match with this user");
+      }
     } else {
       return res.status(400).send("Invalid game status or user");
     }
@@ -114,30 +131,47 @@ matchRouter.put("/match/:id", async (req, res) => {
   }
 });
 
-// Get requests for a specific match by ID
-matchRouter.get("/match/:id/requests", async (req, res) => {
-  const { id } = req.params;
+matchRouter.get("/allMatchRequests", async (req, res) => {
+  const { name } = req.user;
 
-  if (!ObjectId.isValid(id)) {
-    return res.status(400).send("Invalid match ID");
+  if (!name) {
+    return res.status(400).send("User not authenticated");
   }
 
   try {
-    const match = await db
-      .collection("matches")
-      .findOne({ _id: new ObjectId(id) });
-    if (!match) {
-      return res.status(404).send("Match not found");
-    }
+    console.log("Fetching matches for user:", name);
 
-    if (match.opponent) {
-      // If the match already has an opponent, remove all requests
-      match.requests = [];
-      await db
-        .collection("matches")
-        .updateOne({ _id: new ObjectId(id) }, { $set: { requests: [] } });
-    }
-    res.json(match.requests);
+    const matchesWithRequests = await db
+      .collection("matches")
+      .aggregate([
+        {
+          $match: {
+            createdBy: name,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            createdBy: 1,
+            timezone: 1,
+            matchType: 1,
+            format: 1,
+            language: 1,
+            gameStatus: 1,
+            requests: {
+              $filter: {
+                input: "$requests",
+                as: "request",
+                cond: { $ne: ["$$request.requestId", null] }, // Filter out null requests if necessary
+              },
+            },
+          },
+        },
+      ])
+      .toArray();
+
+    console.log("Matches with requests:", matchesWithRequests);
+    res.json(matchesWithRequests);
   } catch (error) {
     console.error("Error fetching match requests:", error);
     res.status(500).send("Internal Server Error");
