@@ -6,6 +6,8 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
+import {MuiCard} from "@ozlievano/fabric";
+import './createaccountpage.css';
 
 export const CreateAccountPage = () => {
   const [email, setEmail] = useState("");
@@ -36,10 +38,12 @@ export const CreateAccountPage = () => {
   };
 
   return (
-    <>
+    <div className='create-account-container'>
       <h1>Create Account</h1>
       {error && <p className="error">{error}</p>}
+      <MuiCard className='create-account-card'>
       <label>
+        Email:
         <input
           type="email"
           value={email}
@@ -48,6 +52,7 @@ export const CreateAccountPage = () => {
         />
       </label>
       <label>
+        User Name:
         <input
           type="displayName"
           value={displayName}
@@ -56,6 +61,7 @@ export const CreateAccountPage = () => {
         />
       </label>
       <label>
+        Password:
         <input
           type="password"
           value={password}
@@ -64,6 +70,7 @@ export const CreateAccountPage = () => {
         />
       </label>
       <label>
+        Confirm Password:
         <input
           type="password"
           value={confirmPassword}
@@ -72,7 +79,8 @@ export const CreateAccountPage = () => {
         />
       </label>
       <button onClick={createAccount}>Create Account </button>
-      <Link to="/login">Already have an account? Log in here.</Link>
-    </>
+      <Link to="/">Already have an account? Log in here.</Link>
+      </MuiCard>
+    </div>
   );
 };
