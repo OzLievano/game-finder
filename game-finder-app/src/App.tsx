@@ -20,8 +20,8 @@ function App() {
           <br />
           <br />
           <Routes>
-            <Route path="/" element={<MatchTable />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/matches" element={<MatchTable />} />
             <Route path="/create-account" element={<CreateAccountPage />} />
             <Route path="/create-match" element={<CreateNewMatch />} />
             <Route path="/user-profile" element={<ProfilePage />} />

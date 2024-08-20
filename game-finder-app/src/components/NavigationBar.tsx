@@ -25,22 +25,31 @@ export const NavigationBar = () => {
       <MuiBox
         sx={{ display: "flex", justifyContent: "space-between", zIndex: 100 }}
       >
-        <MuiTypography
+        {user ? (<MuiTypography
           variant="h6"
           color="inherit"
           component="div"
+          sx={{ cursor: "pointer" }}
+          onClick={() => handleRedirect("/matches")}
+        >
+          AoS Match Finder
+        </MuiTypography>) : (
+          <MuiTypography
+          variant="h6"
+          color="inherit"
+          component="div"
+          sx={{ cursor: "pointer" }}
           onClick={() => handleRedirect("/")}
         >
           AoS Match Finder
         </MuiTypography>
+        )}
 
         {user ? (
           // TODO: create User Profile Icon Component and Page
           <MuiAvatar onClick={() => handleRedirect("/user-profile")} />
         ) : (
-          <MuiButton color="inherit" onClick={() => handleRedirect("/login")}>
-            Login
-          </MuiButton>
+          <MuiButton onClick={() => handleRedirect("/login")}>Login</MuiButton>
         )}
       </MuiBox>
     </MuiAppBar>

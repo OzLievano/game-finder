@@ -134,7 +134,25 @@ export const ProfilePage = () => {
                   ? match.requests.map((request: any) => (
                       <tr key={request.requestId}>
                         <td>{request.user}</td>
-                        <td>Approve / Reject</td>
+                        <td>
+                          <MuiButton
+                            variant="contained"
+                            onClick={() => {
+                              console.log("YEET");
+                            }}
+                          >
+                            Approve
+                          </MuiButton>
+                          <MuiButton
+                            variant="contained"
+                            color="error"
+                            onClick={() => {
+                              console.log("YEET");
+                            }}
+                          >
+                            Reject
+                          </MuiButton>
+                        </td>
                       </tr>
                     ))
                   : null
