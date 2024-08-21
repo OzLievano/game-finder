@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { MuiButton, MuiTable } from "@ozlievano/fabric";
 import { useNotification } from "./NotificationContext";
 import { useNavigate } from "react-router-dom";
+import './matchtable.css';
 
 export const MatchTable = () => {
   const [matches, setMatches] = useState<Matches | []>([]);
@@ -74,13 +75,13 @@ export const MatchTable = () => {
   };
 
   return (
-    <div>
+    <div className="match-table-container">
       {user ? (
-        <MuiButton variant="contained" onClick={handleCreateNewMatch}>
+        <MuiButton className="create-match-button" variant="contained" onClick={handleCreateNewMatch}>
           Create a New Match
         </MuiButton>
       ) : null}
-      <MuiTable>
+      <MuiTable className="mui-table">
         <thead>
           <tr>
             <th>Created By</th>
@@ -103,6 +104,7 @@ export const MatchTable = () => {
               <td>
                 <MuiButton
                   variant="contained"
+                  className="schedule-button"
                   onClick={() => {
                     handleScheduleMatch(match._id);
                   }}

@@ -4,6 +4,8 @@ import { getAuth } from "firebase/auth";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { MatchRequests, Matches } from "./matches.api";
+import { MatchRequestsTable } from './MatchRequestsTable';
+import { MatchHistoryTable } from './MatchHistoryTable';
 
 interface ProfilePageProps {
   matchRequests: MatchRequests;
@@ -103,7 +105,17 @@ export const ProfilePage = () => {
       ),
     [matchRequests]
   );
+  
+  const handleApprove = (requestId: string) => {
+    console.log("Approve request", requestId);
+    // Implement approval logic
+  };
 
+  const handleReject = (requestId: string) => {
+    console.log("Reject request", requestId);
+    // Implement rejection logic
+  };
+  
   return (
     <div>
       <MuiCard>
@@ -115,87 +127,12 @@ export const ProfilePage = () => {
       <MuiButton variant="contained" onClick={handleSignOut}>
         Sign Out
       </MuiButton>
-      <MuiCard>
-        <MuiTable>
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Approve/Reject</th>
-            </tr>
-          </thead>
-          <tbody>
-            {matchRequests.length === 0 ? (
-              <tr>
-                <td colSpan={2}>No matches found</td>
-              </tr>
-            ) : hasAnyRequests ? (
-              matchRequests.map((match) =>
-                match.requests && match.requests.length > 0
-                  ? match.requests.map((request: any) => (
-                      <tr key={request.requestId}>
-                        <td>{request.user}</td>
-                        <td>
-                          <MuiButton
-                            variant="contained"
-                            onClick={() => {
-                              console.log("YEET");
-                            }}
-                          >
-                            Approve
-                          </MuiButton>
-                          <MuiButton
-                            variant="contained"
-                            color="error"
-                            onClick={() => {
-                              console.log("YEET");
-                            }}
-                          >
-                            Reject
-                          </MuiButton>
-                        </td>
-                      </tr>
-                    ))
-                  : null
-              )
-            ) : (
-              <tr>
-                <td colSpan={2}>No requests</td>
-              </tr>
-            )}
-          </tbody>
-        </MuiTable>
-      </MuiCard>
-      <h3>Match History</h3>
-      <MuiTable>
-        <thead>
-          <tr>
-            <th>Time Zone</th>
-            <th>Match Type</th>
-            <th>Format</th>
-            <th>Language</th>
-            <th>Status</th>
-            <th>Opponent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {matches && matches.length > 0 ? (
-            matches.map((match) => (
-              <tr key={match._id}>
-                <td>{match.timezone}</td>
-                <td>{match.matchType}</td>
-                <td>{match.format}</td>
-                <td>{match.language}</td>
-                <td>{match.gameStatus}</td>
-                <td>{match.opponent}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={6}>No matches found</td>
-            </tr>
-          )}
-        </tbody>
-      </MuiTable>
+      <MatchRequestsTable 
+        matchRequests={matchRequests} 
+        onApprove={handleApprove} 
+        onReject={handleReject} 
+      />
+      <MatchHistoryTable matches={matches} />
     </div>
   );
 };

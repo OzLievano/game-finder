@@ -3,6 +3,7 @@ import { MuiBox, MuiButton, MuiTypography } from "@ozlievano/fabric";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useNotification } from "./NotificationContext";
+import './createnewmatch.css';
 
 type FormMatchData = {
   matchType: string;
@@ -65,11 +66,13 @@ export const CreateNewMatch = () => {
         showNotification(error.message, "error");
         console.error("Error:", error);
       });
-    navigate("/");
+    navigate("/matches");
   };
 
   return (
-    <MuiBox component="form" noValidate autoComplete="off">
+    <div className='create-match-container'>
+    <MuiBox component="form" noValidate autoComplete="off" className="create-match-form">
+      <div className="form-group">
       <label htmlFor="match-type">
         <MuiTypography>Match Type</MuiTypography>
         <select
@@ -118,10 +121,11 @@ export const CreateNewMatch = () => {
           onChange={handleFormValues}
         />
       </label>
-      <p></p>
+      </div>
       <MuiButton onClick={createNewMatch} variant="contained">
         <MuiTypography>Submit New Match</MuiTypography>
       </MuiButton>
     </MuiBox>
+    </div>
   );
 };

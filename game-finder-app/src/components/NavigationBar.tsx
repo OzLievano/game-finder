@@ -7,6 +7,7 @@ import {
   MuiTypography,
 } from "@ozlievano/fabric";
 import { useAuth } from "../hooks/useAuth";
+import './navigationbar.css';
 export const NavigationBar = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -27,6 +28,7 @@ export const NavigationBar = () => {
       >
         {user ? (<MuiTypography
           variant="h6"
+          className="navbar-logo"
           color="inherit"
           component="div"
           sx={{ cursor: "pointer" }}
@@ -36,6 +38,7 @@ export const NavigationBar = () => {
         </MuiTypography>) : (
           <MuiTypography
           variant="h6"
+          className="navbar-logo"
           color="inherit"
           component="div"
           sx={{ cursor: "pointer" }}
@@ -46,10 +49,9 @@ export const NavigationBar = () => {
         )}
 
         {user ? (
-          // TODO: create User Profile Icon Component and Page
-          <MuiAvatar onClick={() => handleRedirect("/user-profile")} />
+          <MuiAvatar className="navbar-avatar" onClick={() => handleRedirect("/user-profile")} />
         ) : (
-          <MuiButton onClick={() => handleRedirect("/login")}>Login</MuiButton>
+          <MuiButton className="navbar-button" onClick={() => handleRedirect("/login")}>Login</MuiButton>
         )}
       </MuiBox>
     </MuiAppBar>
