@@ -1,6 +1,5 @@
 import { MuiButton, MuiTable, MuiTypography } from "@ozlievano/fabric";
 import { MatchRequests } from "./matches.api";
-
 interface MatchRequestsTableProps {
   matchRequests: MatchRequests;
   onApprove: (requestId: string) => void;

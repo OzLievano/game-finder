@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 import { MuiButton, MuiTable } from "@ozlievano/fabric";
 import { useNotification } from "./NotificationContext";
 import { useNavigate } from "react-router-dom";
-import './matchtable.css';
+import './tableStyles.css';
 
 export const MatchTable = () => {
   const [matches, setMatches] = useState<Matches | []>([]);
