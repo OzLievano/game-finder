@@ -47,10 +47,10 @@ export const MatchTable = () => {
     navigate("/create-match");
   };
 
-  const handleScheduleMatch = async (id: number) => {
+  const handleScheduleMatch = async (id: string) => {
     try {
       const idToken = await user.getIdToken();
-      const response = await fetch(`api/match/${id}`, {
+      const response = await fetch(`api/match/${id}/schedule`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export const MatchTable = () => {
         },
         body: JSON.stringify({
           gameStatus: "pending",
-          user: user.name,
+          userName: user.displayName,
         }),
       });
       if (!response.ok) {
@@ -70,6 +70,7 @@ export const MatchTable = () => {
       showNotification("Match scheduled successfully", "success");
     } catch (error: any) {
       console.error("Error scheduling match:", error);
+      console.log(error);
       showNotification(error.message, "error");
     }
   };

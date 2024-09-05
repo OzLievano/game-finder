@@ -61,75 +61,136 @@ matchRouter.post("/match", async (req, res) => {
   }
 });
 
-// Update match by ID
-matchRouter.put("/match/:id", async (req, res) => {
+// Accept a match request
+matchRouter.put("/match/:id/accept", async (req, res) => {
   const { id } = req.params;
-  const { requestId, userId, gameStatus } = req.body;
+  const { requestId } = req.body;
 
   if (!ObjectId.isValid(id)) {
     return res.status(400).send("Invalid match ID");
   }
 
   try {
-    const match = await db
-      .collection("matches")
-      .findOne({ _id: new ObjectId(id) });
+    const match = await db.collection("matches").findOne({ _id: new ObjectId(id) });
     if (!match) {
       return res.status(404).send("Match not found");
     }
 
-    if (gameStatus === "accepted" && match.requests.length > 0) {
+    if (match.requests.length > 0) {
       const request = match.requests.find(
-        (req) => req.requestId === requestId && req.user === userId
+        (req) => req.requestId === requestId
       );
+
       if (request) {
-        match.gameStatus = "accepted";
-        match.opponent = request.user;
-        match.requestId = request.requestId;
-        match.requests = [];
         await db.collection("matches").updateOne(
           { _id: new ObjectId(id) },
           {
             $set: {
-              gameStatus: match.gameStatus,
-              opponent: match.opponent,
-              requestId: match.requestId,
-              requests: match.requests,
+              gameStatus: "accepted",
+              opponent: request.user,
+              requestId: request.requestId,
+              requests: [],
             },
           }
         );
-        return res.json(match);
+        return res.json({ message: "Match accepted", match });
       } else {
         return res.status(400).send("Invalid request ID or user");
       }
-    } else if (gameStatus === "pending" && match.createdBy !== userId) {
-      const hasUserAlreadyRequested = match.requests.some(
-        (request) => request.user === req.user.name
-      );
-      if (!hasUserAlreadyRequested) {
-        const newRequestId = uuidv4();
-        const newRequest = { requestId: newRequestId, user: req.user.name };
-        match.requests.push(newRequest);
-        await db
-          .collection("matches")
-          .updateOne(
-            { _id: new ObjectId(id) },
-            { $set: { requests: match.requests } }
-          );
-        return res.json(match);
-      } else {
-        return res
-          .status(400)
-          .send("You already requested a match with this user");
-      }
     } else {
-      return res.status(400).send("Invalid game status or user");
+      return res.status(400).send("No requests to accept");
     }
   } catch (error) {
-    console.error("Error updating match:", error);
+    console.error("Error accepting match:", error);
     return res.status(500).send("Internal Server Error");
   }
 });
+
+matchRouter.put("/match/:id/schedule", async (req, res) => {
+  const { id } = req.params;
+  console.log('Received request body:', req.body);
+
+  const { gameStatus, userName } = req.body;
+  console.log('userName', userName)
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).send("Invalid match ID");
+  }
+
+  try {
+    const match = await db.collection("matches").findOne({ _id: new ObjectId(id) });
+    if (!match) {
+      return res.status(404).send("Match not found");
+    }
+
+    if (gameStatus === "pending" && match.createdBy !== userName) {
+      const hasUserAlreadyRequested = match.requests.some(
+        (request) => request.user === userName
+      );
+
+      if (!hasUserAlreadyRequested) {
+        const newRequestId = uuidv4();
+        const newRequest = { requestId: newRequestId, user: userName };
+        match.requests.push(newRequest);
+
+        const updateResult = await db.collection("matches").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { requests: match.requests } }
+        );
+
+        if (updateResult.modifiedCount === 0) {
+          return res.status(500).send("Failed to schedule match request");
+        }
+
+        return res.json(match);
+      } else {
+        return res.status(400).send("You already requested a match with this user");
+      }
+    }
+
+    return res.status(400).send("Invalid game status or user");
+  } catch (error) {
+    console.error("Error scheduling match request:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+});
+
+
+
+// Reject a match request
+matchRouter.put("/match/:id/reject", async (req, res) => {
+  const { id } = req.params;
+  const { requestId } = req.body;
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).send("Invalid match ID");
+  }
+
+  try {
+    const updateResult = await db.collection("matches").updateOne(
+      { _id: new ObjectId(id) },
+      { $pull: { requests: { requestId: requestId } } }
+    );
+
+    console.log("Update result:", updateResult);
+    console.log("Query executed:", {
+      _id: new ObjectId(id),
+      $pull: { requests: { requestId: requestId } }
+    });
+
+    if (updateResult.matchedCount === 1 && updateResult.modifiedCount === 0) {
+      return res.status(404).send("Request not found or already removed.");
+    }
+
+    const updatedMatch = await db.collection("matches").findOne({ _id: new ObjectId(id) });
+    console.log("Updated match:", JSON.stringify(updatedMatch, null, 2));
+
+    return res.json(updatedMatch);
+  } catch (error) {
+    console.error("Error rejecting match request:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+});
+
 
 matchRouter.get("/allMatchRequests", async (req, res) => {
   const { name } = req.user;
@@ -177,5 +238,6 @@ matchRouter.get("/allMatchRequests", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 export default matchRouter;

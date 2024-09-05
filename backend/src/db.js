@@ -5,7 +5,7 @@ let db;
 
 async function connectToDB(cb) {
   const client = new MongoClient(
-    `mongodb+srv://osvaldoalievano:pFlFfNaXNIin0eL4@cluster0.8dgou2r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+    `mongodb+srv://osvaldoalievano:fyn9cCkKqSHgFe3s@cluster0.8dgou2r.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
   );
 
   try {

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { MatchRequests, Matches } from "./matches.api";
 import { MatchRequestsTable } from './MatchRequestsTable';
 import { MatchHistoryTable } from './MatchHistoryTable';
+import {useNotification} from "./NotificationContext";
 
 interface ProfilePageProps {
   matchRequests: MatchRequests;
@@ -15,6 +16,7 @@ export const ProfilePage = () => {
   const { user } = useAuth();
   const [matches, setMatches] = useState<Matches | []>([]);
   const [matchRequests, setMatchRequests] = useState<MatchRequests | []>([]);
+  const { showNotification } = useNotification();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,8 +78,6 @@ export const ProfilePage = () => {
     }
   }, [user]);
 
-  console.log(matchRequests);
-
   const handleSignOut = () => {
     getAuth()
       .signOut()
@@ -106,15 +106,81 @@ export const ProfilePage = () => {
     [matchRequests]
   );
   
-  const handleApprove = (requestId: string) => {
-    console.log("Approve request", requestId);
-    // Implement approval logic
+  const handleApprove = async (matchId: string, requestId: string) => {
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch(`/api/match/${matchId}/accept`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ requestId }),
+      });
+  
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        showNotification(errorMessage, "error");
+        throw new Error("Failed to update match request");
+      }
+  
+      const { match } = await response.json();
+  
+      // Update client state to reflect server-side changes
+      setMatchRequests(prevRequests =>
+        prevRequests.map(existingMatch =>
+          existingMatch._id === match._id
+            ? {
+                ...existingMatch,
+                gameStatus: match.gameStatus,
+                opponent: match.opponent,
+                requests: [] // Requests are cleared as they're now accepted
+              }
+            : existingMatch
+        )
+      );
+  
+      showNotification("Match request approved successfully", "success");
+    } catch (error: any) {
+      console.error("Error approving match request:", error);
+      showNotification(error.message, "error");
+    }
   };
 
-  const handleReject = (requestId: string) => {
-    console.log("Reject request", requestId);
-    // Implement rejection logic
-  };
+const handleReject = async (matchId: string, requestId: string) => {
+  console.log("Reject request for match:", matchId, "with requestId:", requestId);
+  try {
+    const idToken = await user.getIdToken();
+    const response = await fetch(`/api/match/${matchId}/reject`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({
+        requestId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      showNotification(errorMessage, "error");
+      throw new Error("Failed to reject match request");
+    }
+
+    const updatedMatch = await response.json();
+    setMatchRequests(prevRequests => 
+      prevRequests.map(request => 
+        request._id === updatedMatch._id ? updatedMatch : request
+      )
+    );
+    showNotification("Match request rejected successfully", "success");
+  } catch (error: any) {
+    console.error("Error rejecting match request:", error);
+    showNotification(error.message, "error");
+  }
+};
+
   
   return (
     <div>

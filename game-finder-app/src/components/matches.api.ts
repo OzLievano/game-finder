@@ -4,7 +4,7 @@ type Request = {
 };
 
 export type Match = {
-  _id: number;
+  _id: string;
   createdBy: string;
   timezone: string;
   matchType: string;
