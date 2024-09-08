@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Matches } from "./matches.api";
+import { Matches, scheduleMatch } from "./matches.api";
 import { useAuth } from "../hooks/useAuth";
 import { MuiButton, MuiTable } from "@ozlievano/fabric";
 import { useNotification } from "./NotificationContext";
@@ -78,29 +78,16 @@ export const MatchTable = () => {
 
   const handleScheduleMatch = async (id: string) => {
     try {
-      const idToken = await user.getIdToken();
-      const response = await fetch(`api/match/${id}/schedule`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({
-          gameStatus: "pending",
-          userName: user.displayName,
-        }),
-      });
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        showNotification(errorMessage, "error");
-        throw new Error(`Failed to update match ${id}`);
+      if(!user) {
+        throw new Error("User is not logged in");
       }
-
+      await scheduleMatch(id);
       showNotification("Match scheduled successfully", "success");
     } catch (error: any) {
-      console.error("Error scheduling match:", error);
       showNotification(error.message, "error");
+      console.error("Error scheduling match:", error);
     }
+    
   };
 
   return (

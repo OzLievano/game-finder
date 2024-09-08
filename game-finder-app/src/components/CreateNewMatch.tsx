@@ -4,15 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useNotification } from "./NotificationContext";
 import './createnewmatch.css';
-
-type FormMatchData = {
-  matchType: string;
-  format: string;
-  timezone: number | string;
-  language: string;
-  gameStatus: string;
-  createdBy: string;
-};
+import { createNewMatch, MatchFormState } from "./matches.api";
 
 /* TODO: need to do from validation to prevent users from creating new match without 
     values
@@ -22,7 +14,7 @@ export const CreateNewMatch = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showNotification } = useNotification();
-  const [formState, setFormState] = useState<FormMatchData>({
+  const [formState, setFormState] = useState<MatchFormState>({
     matchType: "",
     format: "",
     timezone: "",
@@ -30,6 +22,7 @@ export const CreateNewMatch = () => {
     gameStatus: "open",
     createdBy: "",
   });
+  
   useEffect(() => {
     // Update createdBy once user is populated
     if (user) {
@@ -44,33 +37,19 @@ export const CreateNewMatch = () => {
     setFormState({ ...formState, [e.target.name]: e.target.value });
   };
 
-  const createNewMatch = async () => {
-    const idToken = await user.getIdToken();
-    await fetch("api/match", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`,
-      },
-      body: JSON.stringify({
-        matchType: formState.matchType,
-        format: formState.format,
-        timezone: formState.timezone,
-        language: formState.language,
-        createdBy: user.displayName,
-        gameStatus: formState.gameStatus,
-      }),
-    })
-      .then((response: any) => {
-        console.log(response);
-        showNotification("Match created successfully", "success");
-        response.json();
-      })
-      .catch((error) => {
-        showNotification(error.message, "error");
-        console.error("Error:", error);
-      });
-    navigate("/matches");
+  const handleCreateNewMatch = async () => {
+    try {
+      if (!user) {
+        throw new Error("User is not logged in");
+      }
+
+      await createNewMatch(formState);
+      showNotification("Match created successfully", "success");
+      navigate("/matches");
+    } catch (error: any) {
+      showNotification(error.message, "error");
+      console.error("Error creating match:", error);
+    }
   };
 
   return (
@@ -130,7 +109,7 @@ export const CreateNewMatch = () => {
         />
       </label>
       </div>
-      <MuiButton onClick={createNewMatch} variant="contained">
+      <MuiButton onClick={handleCreateNewMatch} variant="contained">
         <MuiTypography>Submit New Match</MuiTypography>
       </MuiButton>
     </MuiBox>

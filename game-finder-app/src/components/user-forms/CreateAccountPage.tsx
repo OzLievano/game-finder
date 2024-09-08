@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
 import {MuiCard} from "@ozlievano/fabric";
+import { createAccount } from "./users.api";
 import './createaccountpage.css';
 
 export const CreateAccountPage = () => {
@@ -17,19 +12,13 @@ export const CreateAccountPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const createAccount = async () => {
+  const handleCreateAccount = async () => {
     try {
-      if (password !== confirmPassword) {
-        setError("Password and confirm password do not match");
-        return;
-      }
-      const userCredentials = await createUserWithEmailAndPassword(
-        getAuth(),
+      await createAccount({
         email,
-        password
-      );
-      await updateProfile(userCredentials.user, {
-        displayName: displayName,
+        password,
+        confirmPassword,
+        displayName
       });
       navigate("/");
     } catch (error: any) {
@@ -78,7 +67,7 @@ export const CreateAccountPage = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
       </label>
-      <button onClick={createAccount}>Create Account </button>
+      <button onClick={handleCreateAccount}>Create Account </button>
       <Link to="/">Already have an account? Log in here.</Link>
       </MuiCard>
     </div>
