@@ -8,19 +8,28 @@ import './tableStyles.css';
 
 export const MatchTable = () => {
   const [matches, setMatches] = useState<Matches | []>([]);
+  const [cachedMatches, setCachedMatches] = useState<Record<number, Matches>>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePages, setHasMorePages] = useState(true); // Track if there's more data
   const { user } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
+  const limit = 10;
 
   useEffect(() => {
-    const loadMatchList = async () => {
+    const loadMatchList = async (page: number) => {
+      if (cachedMatches[page]) {
+        setMatches(cachedMatches[page]);
+        return;
+      }
+
       try {
         if (!user) {
           throw new Error("User is not logged in");
         }
 
         const idToken = await user.getIdToken();
-        const fetchMatches = await fetch("api/openMatchList", {
+        const fetchMatches = await fetch(`/api/openMatchList?page=${page}&limit=${limit}`, {
           headers: {
             Authorization: `Bearer ${idToken}`,
           },
@@ -32,6 +41,14 @@ export const MatchTable = () => {
 
         const matchData = await fetchMatches.json();
         setMatches(matchData);
+        setCachedMatches((prevCache) => ({ ...prevCache, [page]: matchData }));
+
+        // Check if fewer items than the limit were returned (meaning no more pages)
+        if (matchData.length < limit) {
+          setHasMorePages(false);
+        } else {
+          setHasMorePages(true); // There could still be more pages
+        }
       } catch (error: any) {
         console.error("Error fetching matches:", error);
         showNotification(error.message, "error");
@@ -39,9 +56,21 @@ export const MatchTable = () => {
     };
 
     if (user) {
-      loadMatchList();
+      loadMatchList(currentPage);
     }
-  }, [user, showNotification]);
+  }, [user, currentPage, cachedMatches, showNotification]);
+
+  const handleNextPage = () => {
+    if (hasMorePages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
 
   const handleCreateNewMatch = () => {
     navigate("/create-match");
@@ -70,7 +99,6 @@ export const MatchTable = () => {
       showNotification("Match scheduled successfully", "success");
     } catch (error: any) {
       console.error("Error scheduling match:", error);
-      console.log(error);
       showNotification(error.message, "error");
     }
   };
@@ -91,6 +119,7 @@ export const MatchTable = () => {
             <th>Format</th>
             <th>Language</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -106,9 +135,7 @@ export const MatchTable = () => {
                 <MuiButton
                   variant="contained"
                   className="schedule-button"
-                  onClick={() => {
-                    handleScheduleMatch(match._id);
-                  }}
+                  onClick={() => handleScheduleMatch(match._id)}
                 >
                   Schedule Match
                 </MuiButton>
@@ -117,6 +144,14 @@ export const MatchTable = () => {
           ))}
         </tbody>
       </MuiTable>
+      <div className="pagination-buttons">
+        <MuiButton variant="outlined" onClick={handlePreviousPage} disabled={currentPage === 1}>
+          Previous
+        </MuiButton>
+        <MuiButton variant="outlined" onClick={handleNextPage} disabled={!hasMorePages}>
+          Next
+        </MuiButton>
+      </div>
     </div>
   );
 };

@@ -14,6 +14,10 @@ type FormMatchData = {
   createdBy: string;
 };
 
+/* TODO: need to do from validation to prevent users from creating new match without 
+    values
+  */
+
 export const CreateNewMatch = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -73,13 +77,14 @@ export const CreateNewMatch = () => {
     <div className='create-match-container'>
     <MuiBox component="form" noValidate autoComplete="off" className="create-match-form">
       <div className="form-group">
-      <label htmlFor="match-type">
+      <label htmlFor="match-type" aria-required>
         <MuiTypography>Match Type</MuiTypography>
         <select
           name="matchType"
           id="match-type-select"
           value={formState.matchType}
           onChange={handleFormValues}
+          required
         >
           <option value="">--Please choose an option--</option>
           <option value="Spearhead">Spearhead</option>
@@ -93,6 +98,7 @@ export const CreateNewMatch = () => {
           id="match-format-select"
           value={formState.format}
           onChange={handleFormValues}
+          required
         >
           <option value="">--Please choose an option--</option>
           <option value="Ranked">Ranked</option>
@@ -109,6 +115,7 @@ export const CreateNewMatch = () => {
           max="2024-12-14T00:00"
           value={formState.timezone}
           onChange={handleFormValues}
+          required
         />
       </label>
       <label>
@@ -119,6 +126,7 @@ export const CreateNewMatch = () => {
           name="language"
           value={formState.language}
           onChange={handleFormValues}
+          required
         />
       </label>
       </div>

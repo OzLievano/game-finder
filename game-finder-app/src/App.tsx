@@ -15,10 +15,6 @@ function App() {
       <BrowserRouter>
         <div className="App">
           <NavigationBar />
-          {/* //TODO:add actual style */}
-          <br />
-          <br />
-          <br />
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/matches" element={<MatchTable />} />

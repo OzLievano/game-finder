@@ -139,6 +139,20 @@ export const ProfilePage = () => {
             : existingMatch
         )
       );
+
+      //TODO: need to reset match history table too
+      // setMatches(prevRequests =>
+      //   prevRequests.map(existingMatch =>
+      //     existingMatch._id === match._id
+      //       ? {
+      //           ...existingMatch,
+      //           gameStatus: match.gameStatus,
+      //           opponent: match.opponent,
+      //           requests: [] // Requests are cleared as they're now accepted
+      //         }
+      //       : existingMatch
+      //   )
+      // );
   
       showNotification("Match request approved successfully", "success");
     } catch (error: any) {
@@ -170,6 +184,11 @@ const handleReject = async (matchId: string, requestId: string) => {
 
     const updatedMatch = await response.json();
     setMatchRequests(prevRequests => 
+      prevRequests.map(request => 
+        request._id === updatedMatch._id ? updatedMatch : request
+      )
+    );
+    setMatches(prevRequests => 
       prevRequests.map(request => 
         request._id === updatedMatch._id ? updatedMatch : request
       )
