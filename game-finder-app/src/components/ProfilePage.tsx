@@ -37,7 +37,7 @@ export const ProfilePage = () => {
         }
 
         const matchData = await fetchMatches.json(); // Parse response as JSON
-        setMatches(matchData);
+        setMatches(matchData.matches);
       } catch (error) {
         console.error("Error fetching matches:", error);
         // Handle errors appropriately
@@ -67,7 +67,7 @@ export const ProfilePage = () => {
         }
 
         const matchData = await response.json(); // Parse response as JSON
-        setMatchRequests(matchData);
+        setMatchRequests(matchData.matchesWithRequests);
       } catch (error) {
         console.error("Error fetching match requests:", error);
       }
@@ -197,7 +197,6 @@ const handleReject = async (matchId: string, requestId: string) => {
     showNotification(error.message, "error");
   }
 };
-
   
   return (
     <div>
