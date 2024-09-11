@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Matches, scheduleMatch } from "./matches.api";
-import { useAuth } from "../hooks/useAuth";
+import { loadMatches, Matches, scheduleMatch } from "../matches.api";
+import { useAuth } from "../../hooks/useAuth";
 import { MuiButton, MuiTable } from "@ozlievano/fabric";
-import { useNotification } from "./NotificationContext";
+import { useNotification } from "../NotificationContext";
 import { useNavigate } from "react-router-dom";
+import {format} from 'date-fns';
 import './tableStyles.css';
 
 export const MatchTable = () => {
@@ -28,18 +29,7 @@ export const MatchTable = () => {
           throw new Error("User is not logged in");
         }
 
-        const idToken = await user.getIdToken();
-        const fetchMatches = await fetch(`/api/openMatchList?page=${page}&limit=${limit}`, {
-          headers: {
-            Authorization: `Bearer ${idToken}`,
-          },
-        });
-
-        if (!fetchMatches.ok) {
-          throw new Error(`Fetch failed with status ${fetchMatches.status}`);
-        }
-
-        const matchData = await fetchMatches.json();
+        const matchData = await loadMatches(page, limit);
         setMatches(matchData);
         setCachedMatches((prevCache) => ({ ...prevCache, [page]: matchData }));
 
@@ -101,7 +91,7 @@ export const MatchTable = () => {
         <thead>
           <tr>
             <th>Created By</th>
-            <th>Time Zone</th>
+            <th>Time</th>
             <th>Match Type</th>
             <th>Format</th>
             <th>Language</th>
@@ -113,7 +103,12 @@ export const MatchTable = () => {
           {matches.map((match) => (
             <tr key={match._id}>
               <td>{match.createdBy || "-"}</td>
-              <td>{match.timezone || "-"}</td>
+              <td>
+  {match && match.timezone
+    ? new Date(match.timezone).toLocaleString('en-US', { timeZone: 'UTC', hour12: true })
+    : "-"}
+</td>
+
               <td>{match.matchType || "-"}</td>
               <td>{match.format || "-"}</td>
               <td>{match.language || "-"}</td>

@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react";
 import { MuiTable, MuiTypography, MuiButton } from "@ozlievano/fabric";
-import { Matches } from "./matches.api";
+import { Matches } from "../matches.api";
+import { usePagination } from "../../hooks/usePagination";
 
 interface MatchHistoryTableProps {
   matches: Matches;
 }
 
 export const MatchHistoryTable = ({ matches }: MatchHistoryTableProps) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 5; 
+  const { currentPage, handleNextPage, handlePreviousPage } = usePagination(limit);
   const [cachedMatches, setCachedMatches] = useState<Record<number, Matches>>({});
   const [currentMatches, setCurrentMatches] = useState<Matches>([]);
-  const limit = 10; // Set limit for pagination
 
   useEffect(() => {
     const loadMatchHistory = () => {
-      if (matches.length === 0) return; // If no matches, return early
+      if (matches.length === 0) return;
 
       if (cachedMatches[currentPage]) {
-        // Use cached matches if they exist for the current page
         setCurrentMatches(cachedMatches[currentPage]);
         return;
       }
@@ -35,18 +35,6 @@ export const MatchHistoryTable = ({ matches }: MatchHistoryTableProps) => {
 
     loadMatchHistory();
   }, [currentPage, matches, cachedMatches]);
-
-  const handleNextPage = () => {
-    if (currentMatches.length === limit) {
-      setCurrentPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
-    }
-  };
 
   return (
     <div className="match-table-container">
@@ -66,7 +54,11 @@ export const MatchHistoryTable = ({ matches }: MatchHistoryTableProps) => {
           {currentMatches && currentMatches.length > 0 ? (
             currentMatches.map((match) => (
               <tr key={match._id}>
-                <td>{match.timezone}</td>
+                <td>
+  {match && match.timezone
+    ? new Date(match.timezone).toLocaleString('en-US', { timeZone: 'UTC', hour12: true })
+    : "-"}
+</td>
                 <td>{match.matchType}</td>
                 <td>{match.format}</td>
                 <td>{match.language}</td>
@@ -83,12 +75,12 @@ export const MatchHistoryTable = ({ matches }: MatchHistoryTableProps) => {
       </MuiTable>
 
       <div className="pagination-buttons">
-        <MuiButton variant="outlined" onClick={handlePreviousPage} disabled={currentPage === 1}>
+        <MuiButton variant="outlined" onClick={() => handlePreviousPage()} disabled={currentPage === 1}>
           Previous
         </MuiButton>
         <MuiButton
           variant="outlined"
-          onClick={handleNextPage}
+          onClick={() => handleNextPage(currentMatches)}
           disabled={currentMatches.length < limit}
         >
           Next

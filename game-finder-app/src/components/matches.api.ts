@@ -1,6 +1,8 @@
 import { getAuth } from "firebase/auth";
+import { getUserToken } from "./user-forms/users.utils";
+import { handleError, BASE_API_URL } from "../api.utils";
 
-type Request = {
+export type Request = {
   requestId: string;
   user: string;
 };
@@ -18,9 +20,7 @@ export type Match = {
 };
 
 export type Matches = Match[];
-
-export type MatchRequests = Match[];
-
+export type MatchRequests = Request[];
 export type MatchFormState = {
   matchType: string;
   format: string;
@@ -30,48 +30,51 @@ export type MatchFormState = {
   createdBy: string;
 };
 
+export const loadMatches = async (page: number, limit: number) => {
+  try {
+    const idToken = await getUserToken();
+    const fetchMatches = await fetch(`${BASE_API_URL}/openMatchList?page=${page}&limit=${limit}`, {
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+
+    await handleError(fetchMatches);
+    const matchData = await fetchMatches.json();
+    return matchData;
+  } catch (error: any) {
+    console.error("Error loading matches:", error);
+  }
+};
 
 export const createNewMatch = async (formState: MatchFormState) => {
   try {
-    const idToken = await getAuth().currentUser?.getIdToken();
-    if (!idToken) {
-      throw new Error("User not authenticated");
-    }
-
-    const response = await fetch("api/match", {
+    const idToken = await getUserToken();
+    const response = await fetch(`${BASE_API_URL}/match`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${idToken}`,
       },
       body: JSON.stringify({
-        matchType: formState.matchType,
-        format: formState.format,
-        timezone: formState.timezone,
-        language: formState.language,
+        ...formState,
         createdBy: getAuth().currentUser?.displayName,
-        gameStatus: formState.gameStatus,
       }),
     });
 
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(errorMessage);
-    }
-
+    await handleError(response);
     const result = await response.json();
     return result;
   } catch (error: any) {
-    throw new Error(error.message);
+    console.error("Error creating match:", error);
   }
 };
 
-
 export const scheduleMatch = async (id: string) => {
   try {
-    const idToken = await getAuth().currentUser?.getIdToken();
-    const user = await getAuth().currentUser;
-    const response = await fetch(`api/match/${id}/schedule`, {
+    const idToken = await getUserToken();
+    const user = getAuth().currentUser;
+    const response = await fetch(`${BASE_API_URL}/match/${id}/schedule`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -82,11 +85,9 @@ export const scheduleMatch = async (id: string) => {
         userName: user?.displayName,
       }),
     });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(`Failed to update match ${id}`);
-    }
+
+    await handleError(response);
   } catch (error: any) {
     console.error("Error scheduling match:", error);
   }
-}
+};

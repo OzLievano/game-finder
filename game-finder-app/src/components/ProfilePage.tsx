@@ -4,8 +4,8 @@ import { getAuth } from "firebase/auth";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { MatchRequests, Matches } from "./matches.api";
-import { MatchRequestsTable } from './MatchRequestsTable';
-import { MatchHistoryTable } from './MatchHistoryTable';
+import { MatchRequestsTable } from './match-tables/MatchRequestsTable';
+import { MatchHistoryTable } from './match-tables/MatchHistoryTable';
 import {useNotification} from "./NotificationContext";
 
 interface ProfilePageProps {
@@ -15,7 +15,7 @@ interface ProfilePageProps {
 export const ProfilePage = () => {
   const { user } = useAuth();
   const [matches, setMatches] = useState<Matches | []>([]);
-  const [matchRequests, setMatchRequests] = useState<MatchRequests | []>([]);
+  const [matchRequests, setMatchRequests] = useState<Matches | []>([]);
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -140,7 +140,7 @@ export const ProfilePage = () => {
         )
       );
 
-      //TODO: need to reset match history table too
+      //TODO: need to reset match history table
       // setMatches(prevRequests =>
       //   prevRequests.map(existingMatch =>
       //     existingMatch._id === match._id

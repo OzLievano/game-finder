@@ -1,10 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./App.css";
 import { NavigationBar } from "./components/NavigationBar";
 import { NotFoundPage } from "./NotFoundPage";
 import { CreateAccountPage } from "./components/user-forms/CreateAccountPage";
 import { LoginPage } from "./components/user-forms/LoginPage";
-import { MatchTable } from "./components/MatchTable";
+import { MatchTable } from "./components/match-tables/MatchTable";
 import { CreateNewMatch } from "./components/CreateNewMatch";
 import { ProfilePage } from "./components/ProfilePage";
 import { NotificationProvider } from "./components/NotificationContext";

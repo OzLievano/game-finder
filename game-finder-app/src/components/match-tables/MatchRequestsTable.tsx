@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { MuiButton, MuiTable, MuiTypography } from "@ozlievano/fabric";
-import { MatchRequests } from "./matches.api";
+import { Matches, MatchRequests } from "../matches.api";
+import { usePagination } from "../../hooks/usePagination";
 
 interface MatchRequestsTableProps {
-  matchRequests: MatchRequests;
+  matchRequests: Matches;
   onApprove: (matchId: string, requestId: string) => void;
   onReject: (matchId: string, requestId: string) => void;
 }
 
 export const MatchRequestsTable = ({ matchRequests, onApprove, onReject }: MatchRequestsTableProps) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [cachedRequests, setCachedRequests] = useState<Record<number, MatchRequests>>({});
-  const [currentRequests, setCurrentRequests] = useState<MatchRequests>([]);
   const limit = 10;
+  const { currentPage, handleNextPage, handlePreviousPage } = usePagination(limit);
+  const [cachedRequests, setCachedRequests] = useState<Record<number, Matches>>({});
+  const [currentRequests, setCurrentRequests] = useState<Matches>([]);
 
   useEffect(() => {
     const loadMatchRequests = () => {
@@ -20,8 +21,6 @@ export const MatchRequestsTable = ({ matchRequests, onApprove, onReject }: Match
         setCurrentRequests(cachedRequests[currentPage]);
         return;
       }
-
-      // Paginate the requests (simulated here)
       const start = (currentPage - 1) * limit;
       const paginatedRequests = matchRequests.slice(start, start + limit);
 
@@ -35,15 +34,7 @@ export const MatchRequestsTable = ({ matchRequests, onApprove, onReject }: Match
     loadMatchRequests();
   }, [currentPage, matchRequests, cachedRequests]);
 
-  const handleNextPage = () => {
-    setCurrentPage((prevPage) => prevPage + 1);
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
-    }
-  };
+  
 
   const hasAnyRequests = currentRequests.some(
     (match) => match.requests && match.requests.length > 0
@@ -98,10 +89,10 @@ export const MatchRequestsTable = ({ matchRequests, onApprove, onReject }: Match
       </MuiTable>
 
       <div className="pagination-buttons">
-        <MuiButton variant="outlined" onClick={handlePreviousPage} disabled={currentPage === 1}>
+        <MuiButton variant="outlined" onClick={() => handlePreviousPage()} disabled={currentPage === 1}>
           Previous
         </MuiButton>
-        <MuiButton variant="outlined" onClick={handleNextPage} disabled={currentRequests.length < limit}>
+        <MuiButton variant="outlined" onClick={() => handleNextPage(matchRequests)} disabled={currentRequests.length < limit}>
           Next
         </MuiButton>
       </div>
