@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { MuiTable, MuiTypography, MuiButton } from "@ozlievano/fabric";
-import { Matches } from "../matches.api";
+import { Matches } from "../match-tables/matches.types";
 import { usePagination } from "../../hooks/usePagination";
 
 interface MatchHistoryTableProps {

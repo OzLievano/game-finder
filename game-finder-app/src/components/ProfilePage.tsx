@@ -1,12 +1,12 @@
 import { MuiButton, MuiCard, MuiTable, MuiTypography } from "@ozlievano/fabric";
 import { useState, useEffect, useMemo } from "react";
-import { getAuth } from "firebase/auth";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { MatchRequests, Matches } from "./matches.api";
+import { MatchRequests, Matches } from "../components/match-tables/matches.types";
 import { MatchRequestsTable } from './match-tables/MatchRequestsTable';
 import { MatchHistoryTable } from './match-tables/MatchHistoryTable';
 import {useNotification} from "./NotificationContext";
+import {logOut} from "./user-forms/users.api";
 
 interface ProfilePageProps {
   matchRequests: MatchRequests;
@@ -78,16 +78,14 @@ export const ProfilePage = () => {
     }
   }, [user]);
 
-  const handleSignOut = () => {
-    getAuth()
-      .signOut()
-      .then(() => {
-        navigate("/");
-        console.log("Signed out successfully");
-      })
-      .catch((error) => {
-        console.error("Error signing out:", error);
-      });
+  const handleSignOut = async () => {
+    try {
+      await logOut();
+      navigate("/");
+    }
+    catch(error: any) {
+      console.error("Error signing out:", error);
+    }
   };
 
   const hasAnyRequests = useMemo(

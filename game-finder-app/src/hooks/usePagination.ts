@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Matches, MatchRequests } from '../components/matches.api'
+import { Matches, MatchRequests } from "../components/match-tables/matches.types";
 
 
 export const usePagination = (limit: number) => {

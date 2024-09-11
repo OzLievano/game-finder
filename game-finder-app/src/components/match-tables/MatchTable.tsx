@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { loadMatches, Matches, scheduleMatch } from "../matches.api";
+import { loadMatches, scheduleMatch } from "../matches.api";
+import { Matches } from "./matches.types";
 import { useAuth } from "../../hooks/useAuth";
 import { MuiButton, MuiTable } from "@ozlievano/fabric";
 import { useNotification } from "../NotificationContext";

@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useNotification } from "./NotificationContext";
 import './createnewmatch.css';
-import { createNewMatch, MatchFormState } from "./matches.api";
+import { createNewMatch } from "./matches.api";
+import {MatchFormState} from '../components/match-tables/matches.types'
 
 /* TODO: need to do from validation to prevent users from creating new match without 
     values

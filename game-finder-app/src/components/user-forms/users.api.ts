@@ -38,3 +38,11 @@ export const logIn = async ({email, password} : AccountData) => {
     throw new Error(error.message);
   }
 };
+
+export const logOut = async () => {
+  try {
+    await getAuth().signOut();
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};

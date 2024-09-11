@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { MuiButton, MuiTable, MuiTypography } from "@ozlievano/fabric";
-import { Matches, MatchRequests } from "../matches.api";
+import { Matches, MatchRequests } from "../match-tables/matches.types";
 import { usePagination } from "../../hooks/usePagination";
 
 interface MatchRequestsTableProps {
@@ -10,7 +10,7 @@ interface MatchRequestsTableProps {
 }
 
 export const MatchRequestsTable = ({ matchRequests, onApprove, onReject }: MatchRequestsTableProps) => {
-  const limit = 10;
+  const limit = 5;
   const { currentPage, handleNextPage, handlePreviousPage } = usePagination(limit);
   const [cachedRequests, setCachedRequests] = useState<Record<number, Matches>>({});
   const [currentRequests, setCurrentRequests] = useState<Matches>([]);
