@@ -11,7 +11,10 @@ export const useAuth = () => {
       setIsLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      setUser(null);
+    };
   }, []);
 
   return { user, isLoading };
