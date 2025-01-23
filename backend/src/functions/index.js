@@ -5,10 +5,8 @@ import sgMail from "@sendgrid/mail";
 dotenv.config();
 
 // Set the SendGrid API key
-sgMail.setApiKey(
-  `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`
-); // Make sure you store your API key securely
-
+sgMail.setApiKey(process.env.SEND_GRID_API_KEY);
+// Make sure you store your API key securely
 const sendMatchNotificationEmail = async (
   playerAEmail,
   playerBEmail,
